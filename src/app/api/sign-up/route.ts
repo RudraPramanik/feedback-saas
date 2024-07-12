@@ -1,7 +1,7 @@
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
-import bcrypt from 'bcryptjs';
-import { sendVerificationEmail } from '@/helpers/sendVerificationEmail';
+import dbConnect from "@/lib/dbConnect";
+import UserModel from "@/model/User";
+import bcrypt from "bcryptjs";
+import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -9,19 +9,19 @@ export async function POST(request: Request) {
   try {
     const { username, email, password } = await request.json();
 
+   
     const existingVerifiedUserByUsername = await UserModel.findOne({
       username,
-      isVerified: true,
-    });
-
-    if (existingVerifiedUserByUsername) {
+      isVerified:true
+    })
+    if(existingVerifiedUserByUsername){
       return Response.json(
         {
           success: false,
-          message: 'Username is already taken',
+          message: "this Username is already taken"
         },
-        { status: 400 }
-      );
+        {status: 400}
+      )
     }
 
     const existingUserByEmail = await UserModel.findOne({ email });
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             success: false,
-            message: 'User already exists with this email',
+            message: "User already exists with this email",
           },
           { status: 400 }
         );
@@ -40,8 +40,9 @@ export async function POST(request: Request) {
         const hashedPassword = await bcrypt.hash(password, 10);
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
-        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
-        await existingUserByEmail.save();
+        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000)
+        await existingUserByEmail.save()
+       
       }
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -81,16 +82,16 @@ export async function POST(request: Request) {
     return Response.json(
       {
         success: true,
-        message: 'User registered successfully. Please verify your account.',
+        message: "User registered successfully. Please verify your account.",
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error registering user:', error);
+    console.error("Error registering user:", error);
     return Response.json(
       {
         success: false,
-        message: 'Error registering user',
+        message: "Error registering user",
       },
       { status: 500 }
     );
